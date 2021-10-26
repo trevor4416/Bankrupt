@@ -1,3 +1,4 @@
+import os
 import pygame, sys
 import pickle
 from pygame.locals import *
@@ -5,8 +6,37 @@ from pygame.locals import *
 #Important Variables
 money = 999999999
 netRate = 0
-spending_rate = 50000000
+spendingRate = 50000000
 EXP = 0
+
+#Save and load
+class saveObj:
+    def __init__(self):
+        self.money = money
+        self.netRate = netRate
+        self.spendingRate = spendingRate
+        self.EXP = EXP
+
+def save():
+    currentSave = saveObj()
+    with open('save.pickle', 'wb') as saveFile:
+        pickle.dump(currentSave, saveFile)
+
+def load():
+    if not os.path.exists('save.pickle'):
+        save()
+    elif os.path.getsize('save.pickle') > 0:
+        with open('save.pickle','rb') as saveFile:
+            currentSave = pickle.load(saveFile)
+            global money; money = currentSave.money
+            global netRate; netRate = currentSave.netRate
+            global spendingRate; spendingRate = currentSave.spendingRate
+            global EXP; EXP = currentSave.EXP
+    else:
+        save()
+
+#Loading Variables
+load()
 
 #Creating Display Window
 pygame.init()
@@ -96,6 +126,7 @@ while True:
     finished = False
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
+            save()
             pygame.quit()
             sys.exit()
         
@@ -113,15 +144,15 @@ while True:
     
         if event.type == pygame.MOUSEBUTTONDOWN and not finished:
             if 390 <= mouse[0]<= 510 and 400 <= mouse[1] <= 520:
-                if money <= spending_rate:
+                if money <= spendingRate:
                     money = 0
                 else:
-                    money -= spending_rate
+                    money -= spendingRate
                 EXP += 10000
             if 940 <= mouse[0]<= 1240 and 400 <= mouse[1] <= 500:
                 if EXP >= 10000:
                     EXP -= 10000
-                    spending_rate *= 1.05
+                    spendingRate *= 1.05
 
 
     backgroundColor(screen, money)
